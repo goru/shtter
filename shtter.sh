@@ -149,24 +149,24 @@ then
 fi
 }
  
-if [ "$AKE
+if [ "$AKEY" == "" -o "$ASECRET" == "" ]
 then
  RTOKEN="`GetRequestToken`"
- GetAccessToken $RT
+ GetAccessToken $RTOKEN
 else
- A
+ ARG="$1"
  shift 1
- 
- 
+  
+ case "$ARG" in
   init)
-   sed -i "1,/^
-   sed -i "1,/^ASECRET/ s/^\(ASECRET
+   sed -i "1,/^AKEY/ s/^\(AKEY=\).*/\1/" "$0"
+   sed -i "1,/^ASECRET/ s/^\(ASECRET=\).*/\1/" "$0"
    ;;
   update)
-   
+   UpdateTimeLine "$@"
    ;;
   *)
    GetTimeLine
- 
- 
+   ;;
+ esac
 fi
