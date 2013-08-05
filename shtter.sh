@@ -67,11 +67,12 @@ Encode "$HASH"
  
 GetRequestToken()
 {
-URL="http://twitter.com/oauth/request_token"
-PARAM="oauth_consumer_key=$CKEY&oauth_nonce=`GenerateNonce`&oauth_signature_method=HMAC-SHA1&oauth_timestamp=`GetTimeStamp`&oauth_token=&oauth_version=1.0"
-HASH="`GenerateHash \"GET\" \"$URL\" \"$PARAM\"`"
- 
-RTOKEN="`$HTTP_GET \"$URL?$PARAM&oauth_signature=$HASH\"`"
+URL="https://api.twitter.com/oauth/request_token"
+NONCE="`GenerateNonce`"
+TIMESTAMP="`GetTimeStamp`"
+PARAM="oauth_callback=&oauth_consumer_key=$CKEY&oauth_nonce=$NONCE&oauth_signature_method=HMAC-SHA1&oauth_timestamp=$TIMESTAMP&oauth_version=1.0"
+HASH="`GenerateHash \"POST\" \"$URL\" \"$PARAM\"`"
+RTOKEN="`wget -q -O - --post-data=\"\" --header=\"Authorization: OAuth oauth_nonce=\"$NONCE\", oauth_callback=\"\", oauth_signature_method=\"HMAC-SHA1\", oauth_timestamp=\"$TIMESTAMP\", oauth_consumer_key=\"$CKEY\", oauth_signature=\"$HASH\", oauth_version=\"1.0\"\" $URL`"
 if [ "$RTOKEN" == "" ]; then
  echo "can not get request token" >&2
  exit 1
@@ -113,7 +114,7 @@ sed -i "1,/^ASECRET/ s/^\(ASECRET=\).*/\1\"$ASECRET\"/" "$0"
  
 GetTimeLine()
 {
-URL="http://api.twitter.com/1/statuses/home_timeline.xml"
+URL="https://api.twitter.com/1.1/statuses/home_timeline.json"
 PARAM="oauth_consumer_key=$CKEY&oauth_nonce=`GenerateNonce`&oauth_signature_method=HMAC-SHA1&oauth_timestamp=`GetTimeStamp`&oauth_token=$AKEY&oauth_version=1.0&status="
 HASH="`GenerateHash \"GET\" \"$URL\" \"$PARAM\"`"
  
@@ -137,7 +138,7 @@ then
  exit 1
 fi
  
-URL="http://api.twitter.com/1/statuses/update.xml"
+URL="http://api.twitter.com/1.1/statuses/update.json"
 PARAM="oauth_consumer_key=$CKEY&oauth_nonce=`GenerateNonce`&oauth_signature_method=HMAC-SHA1&oauth_timestamp=`GetTimeStamp`&oauth_token=$AKEY&oauth_version=1.0&status=$TWEET"
 HASH="`GenerateHash \"POST\" \"$URL\" \"$PARAM\"`"
  
